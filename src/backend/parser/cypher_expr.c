@@ -1817,7 +1817,7 @@ static Form_pg_proc get_procform(FuncCall *fn, bool err_not_found)
     int i = 0;
     List *asp;
     bool found = false;
-    char *funcname = (((String*)linitial(fn->funcname))->sval);
+    char *funcname = strVal(linitial(fn->funcname));
 
     /* get a list of matching functions */
     catlist = SearchSysCacheList1(PROCNAMEARGSNSP, CStringGetDatum(funcname));

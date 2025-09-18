@@ -1522,7 +1522,7 @@ static List *transform_cypher_delete_item_list(cypher_parsestate *cpstate,
     {
         Node *expr = lfirst(lc);
         ColumnRef *col;
-        String *val;
+        Value *val;
         /* 
          * Use compatible integer type for both PostgreSQL and Apache Cloudberry
          * AG_VALUE_INTEGER_TYPE is defined in age_compat.h
@@ -1554,13 +1554,13 @@ static List *transform_cypher_delete_item_list(cypher_parsestate *cpstate,
                     (errmsg_internal("unexpected Node for cypher_clause")));
         }
 
-        resno = get_target_entry_resno(query->targetList, val->sval);
+        resno = get_target_entry_resno(query->targetList, strVal(val));
         if (resno == -1)
         {
             ereport(ERROR,
                     (errcode(ERRCODE_INVALID_COLUMN_REFERENCE),
                      errmsg("undefined reference to variable %s in DELETE clause",
-                            val->sval),
+                            strVal(val)),
                      parser_errposition(pstate, col->location)));
         }
 
@@ -1568,7 +1568,7 @@ static List *transform_cypher_delete_item_list(cypher_parsestate *cpstate,
 
         pos = makeInteger(resno);
 
-        item->var_name = val->sval;
+        item->var_name = strVal(val);
         item->entity_position = pos;
 
         items = lappend(items, item);
@@ -1669,7 +1669,7 @@ cypher_update_information *transform_cypher_remove_item_list(
         ColumnRef *ref;
         A_Indirection *ind;
         char *variable_name, *property_name;
-        String *property_node, *variable_node;
+        Value *property_node, *variable_node;
 
         item = make_ag_node(cypher_update_item);
 
@@ -1715,7 +1715,7 @@ cypher_update_information *transform_cypher_remove_item_list(
 
         variable_node = linitial(ref->fields);
 
-        variable_name = variable_node->sval;
+        variable_name = strVal(variable_node);
         item->var_name = variable_name;
 
         item->entity_position = get_target_entry_resno(query->targetList,
@@ -1750,7 +1750,7 @@ cypher_update_information *transform_cypher_remove_item_list(
                      errmsg("REMOVE clause expects a property name"),
                      parser_errposition(pstate, set_item->location)));
         }
-        property_name = property_node->sval;
+        property_name = strVal(property_node);
         item->prop_name = property_name;
 
         info->set_items = lappend(info->set_items, item);
@@ -1778,7 +1778,7 @@ cypher_update_information *transform_cypher_set_item_list(
         ColumnRef *ref;
         A_Indirection *ind;
         char *variable_name, *property_name;
-        String *property_node, *variable_node;
+        Value *property_node, *variable_node;
         int is_entire_prop_update = 0; /* true if a map is assigned to variable */
 
         /* LHS of set_item must be a variable or an indirection. */
@@ -1831,6 +1831,27 @@ cypher_update_information *transform_cypher_set_item_list(
         {
             ereport(ERROR,
                     (errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
+                     errmsg("SET clause expects a set item"),
+                     parser_errposition(pstate, set_item->location)));
+        }
+
+        if (is_entire_prop_update)
+        {
+            item->is_entire_prop_update = true;
+        }
+
+        /* extract variable name */
+        variable_node = linitial(ref->fields);
+        if (!IsA(variable_node, String))
+        {
+            ereport(ERROR,
+                    (errcode(ERRCODE_INVALID_COLUMN_REFERENCE),
+                     errmsg("SET clause expects a variable name"),
+                     parser_errposition(pstate, set_item->location)));
+        }
+
+        variable_name = strVal(variable_node);
+        item->var_name = variable_name;
                      errmsg("unexpected node in cypher update list")));
         }
 
@@ -3281,7 +3302,7 @@ static FuncCall *prevent_duplicate_edges(cypher_parsestate *cpstate,
     List *edges = NIL;
     ListCell *lc;
     List *qualified_function_name;
-    String *ag_catalog, *edge_fn;
+    Value *ag_catalog, *edge_fn;
 
     ag_catalog = makeString("ag_catalog");
     edge_fn = makeString("_ag_enforce_edge_uniqueness");
@@ -3386,8 +3407,8 @@ static List *make_join_condition_for_edge(cypher_parsestate *cpstate,
     {
         Node *left_id = NULL;
         Node *right_id = NULL;
-        String *ag_catalog = makeString("ag_catalog");
-        String *func_name;
+        Value *ag_catalog = makeString("ag_catalog");
+        Value *func_name;
         List *qualified_func_name;
         List *args = NIL;
         List *quals = NIL;
@@ -3437,7 +3458,7 @@ static List *make_join_condition_for_edge(cypher_parsestate *cpstate,
             prev_edge->type == ENT_VLE_EDGE)
         {
             List *qualified_name;
-            String *match_qual;
+            Value *match_qual;
             FuncCall *fc;
 
             match_qual = makeString("age_match_two_vle_edges");
@@ -3580,8 +3601,8 @@ static List *make_join_condition_for_edge(cypher_parsestate *cpstate,
 static Node *make_type_cast_to_agtype(Node *arg)
 {
     TypeCast *n = makeNode(TypeCast);
-    String *ag_catalog = makeString("ag_catalog");
-    String *agtype_str = makeString("agtype");
+    Value *ag_catalog = makeString("ag_catalog");
+    Value *agtype_str = makeString("agtype");
     List *qualified_name = list_make2(ag_catalog, agtype_str);
 
     n->arg = arg;
@@ -3648,7 +3669,7 @@ static List *join_to_entity(cypher_parsestate *cpstate,
     else if (entity->type == ENT_VLE_EDGE)
     {
         List *qualified_name, *args;
-        String *ag_catalog, *match_qual;
+        Value *ag_catalog, *match_qual;
         bool is_left_side;
         FuncCall *fc;
 
@@ -3771,7 +3792,7 @@ static A_Expr *filter_vertices_on_label_id(cypher_parsestate *cpstate,
                                                           cpstate->graph_oid);
     A_Const *n;
     FuncCall *fc;
-    String *ag_catalog, *extract_label_id;
+    Value *ag_catalog, *extract_label_id;
     int32 label_id = lcd->id;
 
     n = makeNode(A_Const);
@@ -3892,7 +3913,7 @@ static List *transform_map_to_ind_recursive(cypher_parsestate *cpstate,
         key = (Node *)map->keyvals->elements[i].ptr_value;
         val = (Node *)map->keyvals->elements[i + 1].ptr_value;
         Assert(IsA(key, String));
-        keystr = ((String *)key)->sval;
+        keystr = strVal((Value *)key);
 
         if (is_ag_node(val, cypher_map) &&
             list_length(((cypher_map *)val)->keyvals) != 0)
@@ -3996,7 +4017,7 @@ static List *transform_map_to_ind_top_level(cypher_parsestate *cpstate,
         key = (Node *)map->keyvals->elements[i].ptr_value;
         val = (Node *)map->keyvals->elements[i + 1].ptr_value;
         Assert(IsA(key, String));
-        keystr = ((String *)key)->sval;
+        keystr = strVal((Value *)key);
 
         op = list_make1(makeString("="));
         variable = makeNode(ColumnRef);
