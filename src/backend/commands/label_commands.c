@@ -550,12 +550,12 @@ static FuncCall *build_id_default_func_expr(char *graph_name, char *label_name,
     label_id_func_name = list_make2(makeString("ag_catalog"),
                                     makeString("_label_id"));
     graph_name_const = makeNode(A_Const);
-    graph_name_const->val.sval.type = T_String;
-    graph_name_const->val.sval.sval = graph_name;
+    graph_name_const->val.type = T_String;
+    graph_name_const->val.val.str = graph_name;
     graph_name_const->location = -1;
     label_name_const = makeNode(A_Const);
-    label_name_const->val.sval.type = T_String;
-    label_name_const->val.sval.sval = label_name;
+    label_name_const->val.type = T_String;
+    label_name_const->val.val.str = label_name;
     label_name_const->location = -1;
     label_id_func_args = list_make2(graph_name_const, label_name_const);
     label_id_func = makeFuncCall(label_id_func_name, label_id_func_args, COERCE_SQL_SYNTAX, -1);
@@ -564,8 +564,8 @@ static FuncCall *build_id_default_func_expr(char *graph_name, char *label_name,
     nextval_func_name = SystemFuncName("nextval");
     qualified_seq_name = quote_qualified_identifier(schema_name, seq_name);
     qualified_seq_name_const = makeNode(A_Const);
-    qualified_seq_name_const->val.sval.type = T_String;
-    qualified_seq_name_const->val.sval.sval = qualified_seq_name;
+    qualified_seq_name_const->val.type = T_String;
+    qualified_seq_name_const->val.val.str = qualified_seq_name;
     qualified_seq_name_const->location = -1;
     regclass_cast = makeNode(TypeCast);
     regclass_cast->typeName = SystemTypeName("regclass");
@@ -729,7 +729,7 @@ static int32 get_new_label_id(Oid graph_oid, Oid nsp_id)
         int32 label_id;
 
         /* the data type of the sequence is integer (int4) */
-        label_id = (int32) nextval_internal(seq_id, true);
+        label_id = (int32) nextval_internal(seq_id, true, false);
         Assert(label_id_is_valid(label_id));
         if (!label_id_exists(graph_oid, label_id))
         {
@@ -902,7 +902,7 @@ static void range_var_callback_for_remove_relation(const RangeVar *rel,
 
     /* relkind == expected_relkind */
 
-    if (!object_ownercheck(rel_oid, get_rel_namespace(rel_oid), GetUserId()))
+    if (!pg_class_ownercheck(rel_oid, GetUserId()))
     {
         aclcheck_error(ACLCHECK_NOT_OWNER,
                        get_relkind_objtype(get_rel_relkind(rel_oid)),

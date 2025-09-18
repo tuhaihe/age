@@ -277,12 +277,12 @@ static Node *transform_A_Const(cypher_parsestate *cpstate, A_Const *ac)
         break;
     case T_Float:
         {
-	    char *n = ac->val.sval.sval;
+	    char *n = strVal(&ac->val);
             char *endptr;
             int64 i;
             errno = 0;
 
-            i = strtoi64(ac->val.fval.fval, &endptr, 10);
+            i = strtoi64(strVal(&ac->val), &endptr, 10);
 
             if (errno == 0 && *endptr == '\0')
             {

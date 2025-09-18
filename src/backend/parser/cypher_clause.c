@@ -3619,8 +3619,8 @@ static Node *make_bool_a_const(bool state)
 {
     A_Const *n = makeNode(A_Const);
 
-    n->val.sval.type = T_String;
-    n->val.sval.sval = (state ? "true" : "false");
+    n->val.type = T_String;
+    n->val.val.str = (state ? "true" : "false");
     n->location = -1;
 
     /* typecast to agtype */
@@ -3796,8 +3796,8 @@ static A_Expr *filter_vertices_on_label_id(cypher_parsestate *cpstate,
     int32 label_id = lcd->id;
 
     n = makeNode(A_Const);
-    n->val.ival.type = T_Integer;
-    n->val.ival.ival = label_id;
+    n->val.type = T_Integer;
+    n->val.val.ival = label_id;
     n->location = -1;
 
     ag_catalog = makeString("ag_catalog");
