@@ -24,9 +24,9 @@
 #include "nodes/nodeFuncs.h"
 
 #define cypher_expr_tree_walker(n, w, c) \
-	cypher_expr_tree_walker_impl(n, (tree_walker_callback) (w), c)
+	cypher_expr_tree_walker_impl(n, w, c)
 #define cypher_raw_expr_tree_walker(n, w, c) \
-	cypher_raw_expr_tree_walker_impl(n, (tree_walker_callback) (w), c)
+	cypher_raw_expr_tree_walker_impl(n, w, c)
 
 void post_parse_analyze_init(void);
 void post_parse_analyze_fini(void);
