@@ -34,7 +34,6 @@
 
 #include "parser/ag_scanner.h"
 #include "utils/agtype.h"
-}
 
 %option 8bit
 %option never-interactive
