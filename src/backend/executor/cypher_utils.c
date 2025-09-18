@@ -60,29 +60,16 @@ ResultRelInfo *create_entity_result_rel_info(EState *estate, char *graph_name,
         rv = makeRangeVar(graph_name, label_name, -1);
     }
 
-    label_relation = parserOpenTable(pstate, rv, RowExclusiveLock);
+    label_relation = parserOpenTable(pstate, rv, RowExclusiveLock, NULL);
 
     /*
      * Get the rte to determine the correct perminfoindex value. Some rtes
      * may have it set up, some created here (executor) may not.
      *
      * Note: The RTEPermissionInfo structure was added in PostgreSQL version 16.
-     *
-     * Note: We use the list_length because exec_rt_fetch starts at 1, not 0.
-     *       Doing this gives us the last rte in the es_range_table list, which
-     *       is the rte in question.
-     *
-     *       If the rte is created here and doesn't have a perminfoindex, we
-     *       need to pass on a 0. Otherwise, later on GetResultRTEPermissionInfo
-     *       will attempt to get the rte's RTEPermissionInfo data, which doesn't
-     *       exist.
-     *
-     * TODO: Ideally, we should consider creating the RTEPermissionInfo data,
-     *       but as this is just a read of the label relation, it is likely
-     *       unnecessary.
+     *       Since Cloudberry is based on an earlier version, we always pass 0.
      */
-    rte = exec_rt_fetch(list_length(estate->es_range_table), estate);
-    pii = (rte->perminfoindex == 0) ? 0 : list_length(estate->es_range_table);
+    pii = 0;
 
     /* initialize the resultRelInfo */
     InitResultRelInfo(resultRelInfo, label_relation, pii, NULL,
@@ -263,7 +250,7 @@ HeapTuple insert_entity_tuple_cid(ResultRelInfo *resultRelInfo,
     if (resultRelInfo->ri_NumIndices > 0)
     {
         ExecInsertIndexTuples(resultRelInfo, elemTupleSlot, estate,
-                              false, false, NULL, NIL, false);
+                              false, false, NULL, NIL);
     }
 
     return tuple;

@@ -359,7 +359,7 @@ static void insert_batch_in_temp_table(batch_insert_state *batch_state,
     for (i = 0; i < batch_state->num_tuples; i++)
     {
         result = ExecInsertIndexTuples(resultRelInfo, batch_state->temp_id_slots[i],
-                                       estate, false, true, NULL, NIL, false);
+                                       estate, false, true, NULL, NIL);
         /* Check if the unique cnstraint is violated */
         if (list_length(result) != 0)
         {

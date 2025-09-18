@@ -5899,8 +5899,8 @@ transform_create_cypher_edge(cypher_parsestate *cpstate, List **target_list,
     }
 
     /* lock the relation of the label */
-    rv = makeRangeVar(cpstate->graph_name, edge->label, -1);
-    label_relation = parserOpenTable(&cpstate->pstate, rv, RowExclusiveLock);
+    rv = makeRangeVar(cpstate->graph_name, label_name, -1);
+    label_relation = parserOpenTable(&cpstate->pstate, rv, RowExclusiveLock, NULL);
 
     /* Store the relid */
     rel->relid = RelationGetRelid(label_relation);
