@@ -178,7 +178,14 @@ Apache AGE is also compatible with Apache Cloudberry, providing graph database c
 make install
 ```
 
-AGE automatically detects Apache Cloudberry at compile time and uses appropriate compatibility layers. See [COMPATIBILITY.md](COMPATIBILITY.md) for more details on how AGE maintains compatibility across platforms.
+AGE automatically detects Apache Cloudberry at compile time and uses appropriate compatibility layers to handle API differences. This includes:
+
+- Type system differences between PostgreSQL and Cloudberry
+- Function signature variations (e.g., add_path, table_tuple_update)
+- Missing fields in certain structures (e.g., perminfoindex)
+- Platform-specific macro definitions
+
+See [COMPATIBILITY.md](COMPATIBILITY.md) and [COMPILATION_FIXES_SUMMARY.md](COMPILATION_FIXES_SUMMARY.md) for detailed information on how AGE maintains compatibility across platforms and the specific fixes implemented.
 
 <h4></a><img width="30" src="/img/docker.svg"></a>
 &nbsp;Run using Docker

@@ -1,4 +1,3 @@
-%top{
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -1246,9 +1245,11 @@ static int _scan_errmsg(const char *msg, const ag_yy_extra *extra)
     const char *t = extra->scan_buf + extra->last_loc;
 
     if (t[0] == YY_END_OF_BUFFER_CHAR)
-        return errmsg("%s at end of input", msg);
+        errmsg("%s at end of input", msg);
     else
-        return errmsg("%s at or near \"%s\"", msg, t);
+        errmsg("%s at or near \"%s\"", msg, t);
+    
+    return 0; /* return value does not matter */
 }
 
 static int _scan_errposition(const int location, const ag_yy_extra *extra)
@@ -1262,7 +1263,8 @@ static int _scan_errposition(const int location, const ag_yy_extra *extra)
     /* convert byte offset to number of characters */
     pos = pg_mbstrlen_with_len(extra->scan_buf, location) + 1;
 
-    return errposition(pos);
+    errposition(pos);
+    return 0; /* return value does not matter */
 }
 
 ag_scanner_t ag_scanner_create(const char *s)
