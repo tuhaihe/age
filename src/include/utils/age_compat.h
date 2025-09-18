@@ -61,4 +61,19 @@
 #include "lib/stringinfo.h"
 #define AG_STRINGINFO_TYPE StringInfo
 
+/*
+ * Function compatibility macros
+ *
+ * These macros help handle function signature differences between PostgreSQL and Apache Cloudberry
+ */
+
+/* 
+ * add_path function handling - Apache Cloudberry requires an additional PlannerInfo *root parameter
+ */
+#if AG_CLOUDBERRY
+#define AG_ADD_PATH(parent_rel, new_path, root) add_path(parent_rel, new_path, root)
+#else
+#define AG_ADD_PATH(parent_rel, new_path, root) add_path(parent_rel, new_path)
+#endif
+
 #endif /* AG_AGE_COMPAT_H */

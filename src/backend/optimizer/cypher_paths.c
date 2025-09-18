@@ -25,6 +25,7 @@
 #include "optimizer/cypher_pathnode.h"
 #include "optimizer/cypher_paths.h"
 #include "utils/ag_func.h"
+#include "utils/age_compat.h"
 
 typedef enum cypher_clause_kind
 {
@@ -147,7 +148,7 @@ static void handle_cypher_delete_clause(PlannerInfo *root, RelOptInfo *rel,
     rel->pathlist = NIL;
     rel->partial_pathlist = NIL;
 
-    add_path(rel, (Path *)cp);
+    AG_ADD_PATH(rel, (Path *)cp, root);
 }
 
 /*
@@ -176,7 +177,7 @@ static void handle_cypher_create_clause(PlannerInfo *root, RelOptInfo *rel,
     rel->partial_pathlist = NIL;
 
     /* Add the new path to the rel. */
-    add_path(rel, (Path *)cp);
+    AG_ADD_PATH(rel, (Path *)cp, root);
 }
 
 /* replace all possible paths with our CustomPath */
@@ -200,7 +201,7 @@ static void handle_cypher_set_clause(PlannerInfo *root, RelOptInfo *rel,
     rel->pathlist = NIL;
     rel->partial_pathlist = NIL;
 
-    add_path(rel, (Path *)cp);
+    AG_ADD_PATH(rel, (Path *)cp, root);
 }
 
 /* replace all possible paths with our CustomPath */
@@ -224,5 +225,5 @@ static void handle_cypher_merge_clause(PlannerInfo *root, RelOptInfo *rel,
     rel->pathlist = NIL;
     rel->partial_pathlist = NIL;
 
-    add_path(rel, (Path *)cp);
+    AG_ADD_PATH(rel, (Path *)cp, root);
 }
