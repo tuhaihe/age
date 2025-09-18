@@ -376,13 +376,17 @@ static void process_delete_list(CustomScanState *node)
         ResultRelInfo *resultRelInfo;
         HeapTuple heap_tuple;
         char *label_name;
-        Integer *pos;
+        /* 
+         * Use compatible integer type for both PostgreSQL and Apache Cloudberry
+         * AG_VALUE_INTEGER_TYPE is defined in age_compat.h
+         */
+        AG_VALUE_INTEGER_TYPE *pos;
         int entity_position;
 
         item = lfirst(lc);
 
         pos = item->entity_position;
-        entity_position = pos->ival;
+        entity_position = AG_GET_INTEGER_VALUE(pos);
 
         /* skip if the entity is null */
         if (scanTupleSlot->tts_isnull[entity_position - 1])

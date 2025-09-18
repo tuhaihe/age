@@ -31,6 +31,11 @@
 #ifndef AG_AGTYPE_H
 #define AG_AGTYPE_H
 
+#include "postgres.h"
+
+/* Include compatibility header for cross-platform support */
+#include "utils/age_compat.h"
+
 #include "utils/array.h"
 #include "utils/numeric.h"
 

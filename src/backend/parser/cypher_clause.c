@@ -1523,7 +1523,11 @@ static List *transform_cypher_delete_item_list(cypher_parsestate *cpstate,
         Node *expr = lfirst(lc);
         ColumnRef *col;
         String *val;
-        Integer *pos;
+        /* 
+         * Use compatible integer type for both PostgreSQL and Apache Cloudberry
+         * AG_VALUE_INTEGER_TYPE is defined in age_compat.h
+         */
+        AG_VALUE_INTEGER_TYPE *pos;
         int resno;
 
         cypher_delete_item *item = make_ag_node(cypher_delete_item);

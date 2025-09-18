@@ -169,6 +169,16 @@ If the path to your Postgres installation is not in the PATH variable, add the p
 make PG_CONFIG=/path/to/postgres/bin/pg_config install
 ```
 
+<h4><img width="20" src="/img/tux.svg"><img width="20" src="/img/apple.svg"> &nbsp;Install AGE on Apache Cloudberry
+</h4>
+
+Apache AGE is also compatible with Apache Cloudberry, providing graph database capabilities on top of the MPP architecture. The same installation process applies:
+
+```bash
+make install
+```
+
+AGE automatically detects Apache Cloudberry at compile time and uses appropriate compatibility layers. See [COMPATIBILITY.md](COMPATIBILITY.md) for more details on how AGE maintains compatibility across platforms.
 
 <h4></a><img width="30" src="/img/docker.svg"></a>
 &nbsp;Run using Docker

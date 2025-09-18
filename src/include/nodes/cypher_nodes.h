@@ -20,7 +20,12 @@
 #ifndef AG_CYPHER_NODE_H
 #define AG_CYPHER_NODE_H
 
-#include "nodes/ag_nodes.h"
+#include "postgres.h"
+
+/* Include compatibility header for cross-platform support */
+#include "utils/age_compat.h"
+
+#include "nodes/extensible.h"
 
 /* cypher sub patterns/queries */
 typedef enum csp_kind
@@ -466,7 +471,11 @@ typedef struct cypher_delete_information
 typedef struct cypher_delete_item
 {
     ExtensibleNode extensible;
-    Integer *entity_position;
+    /* 
+     * Use compatible integer type for both PostgreSQL and Apache Cloudberry
+     * AG_VALUE_INTEGER_TYPE is defined in age_compat.h
+     */
+    AG_VALUE_INTEGER_TYPE *entity_position;
     char *var_name;
 } cypher_delete_item;
 

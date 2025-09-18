@@ -134,6 +134,9 @@ GEN_KEYWORDLIST_DEPS = ./tools/gen_keywordlist.pl tools/PerfectHash.pm
 ag_include_dir = $(srcdir)/src/include
 PG_CPPFLAGS = -I$(ag_include_dir) -I$(ag_include_dir)/parser
 
+# Add compatibility flags for both PostgreSQL and CloudberryDB
+PG_CPPFLAGS += -I$(ag_include_dir)/utils
+
 PG_CONFIG ?= pg_config
 PGXS := $(shell $(PG_CONFIG) --pgxs)
 include $(PGXS)
